@@ -6,9 +6,11 @@ import com.joaoeduardo.algasensors.device.management.api.model.dto.out.*;
 import com.joaoeduardo.algasensors.device.management.common.IdGenerator;
 import com.joaoeduardo.algasensors.device.management.domain.model.*;
 import com.joaoeduardo.algasensors.device.management.domain.repository.*;
+import io.hypersistence.tsid.*;
 import lombok.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.*;
 
 @RestController
 @RequestMapping("/api/sensors")
@@ -17,6 +19,14 @@ public class SensorController {
 
     private final SensorRepository sensorRepository;
     private final IMapper mapper;
+
+
+    @GetMapping("{sensorId}")
+    public SensorOutput getOne(@PathVariable TSID sensorId) {
+        Sensor sensor = sensorRepository.findById(new SensorId(sensorId))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        return mapper.toSensorOutput(sensor);
+    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
