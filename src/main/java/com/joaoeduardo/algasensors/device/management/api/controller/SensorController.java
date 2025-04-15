@@ -8,6 +8,8 @@ import com.joaoeduardo.algasensors.device.management.domain.model.*;
 import com.joaoeduardo.algasensors.device.management.domain.repository.*;
 import io.hypersistence.tsid.*;
 import lombok.*;
+import org.springframework.data.domain.*;
+import org.springframework.data.web.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.*;
@@ -19,6 +21,13 @@ public class SensorController {
 
     private final SensorRepository sensorRepository;
     private final IMapper mapper;
+
+
+    @GetMapping
+    public Page<SensorOutput> getOne(@PageableDefault Pageable pageable) {
+        Page<Sensor> sensors = sensorRepository.findAll(pageable);
+        return sensors.map(mapper::toSensorOutput);
+    }
 
 
     @GetMapping("{sensorId}")
