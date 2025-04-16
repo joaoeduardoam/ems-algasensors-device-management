@@ -4,6 +4,7 @@ import com.joaoeduardo.algasensors.device.management.api.config.mapper.*;
 import com.joaoeduardo.algasensors.device.management.api.model.dto.in.*;
 import com.joaoeduardo.algasensors.device.management.api.model.dto.out.*;
 import com.joaoeduardo.algasensors.device.management.common.IdGenerator;
+import com.joaoeduardo.algasensors.device.management.domain.exceptions.*;
 import com.joaoeduardo.algasensors.device.management.domain.model.*;
 import com.joaoeduardo.algasensors.device.management.domain.repository.*;
 import io.hypersistence.tsid.*;
@@ -54,6 +55,60 @@ public class SensorController {
         sensor = sensorRepository.saveAndFlush(sensor);
 
         return mapper.toSensorOutput(sensor);
+    }
+
+
+    @PutMapping("{sensorId}")
+    @ResponseStatus(HttpStatus.OK)
+    public SensorOutput updateSensor(@PathVariable TSID sensorId, @RequestBody SensorInput input) {
+
+        Sensor sensor = sensorRepository.findById(new SensorId(sensorId))
+                .orElseThrow(() -> new SensorNotFoundException("Sensor not found with ID: " + sensorId));
+
+
+        Sensor updatedSensor = mapper.toSensor(input);
+
+        updatedSensor.setId(sensor.getId()); // Mantém o ID original
+
+        return mapper.toSensorOutput(
+                sensorRepository.save(updatedSensor));
+    }
+
+    @PutMapping("{sensorId}/enable")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public SensorOutput enableSensor(@PathVariable TSID sensorId) {
+
+        Sensor sensor = sensorRepository.findById(new SensorId(sensorId))
+                .orElseThrow(() -> new SensorNotFoundException("Sensor not found with ID: " + sensorId));
+
+        sensor.setEnabled(true);
+
+        return mapper.toSensorOutput(
+                sensorRepository.save(sensor));
+    }
+
+    @DeleteMapping("{sensorId}/enable")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public SensorOutput disableSensor(@PathVariable TSID sensorId) {
+
+        Sensor sensor = sensorRepository.findById(new SensorId(sensorId))
+                .orElseThrow(() -> new SensorNotFoundException("Sensor not found with ID: " + sensorId));
+
+        sensor.setEnabled(false);
+
+        return mapper.toSensorOutput(
+                sensorRepository.save(sensor));
+    }
+
+    @DeleteMapping("{sensorId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteSensor(@PathVariable TSID sensorId) {
+
+        Sensor sensor = sensorRepository.findById(new SensorId(sensorId))
+                .orElseThrow(() -> new SensorNotFoundException("Sensor not found with ID: " + sensorId));
+
+        sensorRepository.delete(sensor);
+
     }
 
 }

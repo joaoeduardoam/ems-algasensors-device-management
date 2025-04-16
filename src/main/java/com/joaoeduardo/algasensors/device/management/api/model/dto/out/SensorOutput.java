@@ -11,6 +11,7 @@ public record SensorOutput (
         String ip,
         String location,
         String protocol,
-        String model
+        String model,
+        Boolean enabled
 
 ){}

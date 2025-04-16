@@ -1,6 +1,7 @@
 package com.joaoeduardo.algasensors.device.management.api.config.mapper;
 
 
+import com.joaoeduardo.algasensors.device.management.api.model.dto.in.*;
 import com.joaoeduardo.algasensors.device.management.api.model.dto.out.*;
 import com.joaoeduardo.algasensors.device.management.domain.model.*;
 import org.mapstruct.*;
@@ -13,5 +14,9 @@ public interface IMapper {
 
     @Mapping(source = "id.value", target = "id")
     SensorOutput toSensorOutput(Sensor sensor);
+
+
+    @Mapping(target = "enabled", constant = "false")
+    Sensor toSensor(SensorInput sensorInput);
 
 }
