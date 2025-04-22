@@ -1,0 +1,8 @@
+package com.joaoeduardo.algasensors.device.management.api.client;
+
+import io.hypersistence.tsid.*;
+
+public interface SensorMonitoringClient {
+    void enableMonitoring(TSID sensorId);
+    void disableMonitoring(TSID sensorId);
+}

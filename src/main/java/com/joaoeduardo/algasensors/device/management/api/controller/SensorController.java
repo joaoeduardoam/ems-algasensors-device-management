@@ -1,5 +1,7 @@
 package com.joaoeduardo.algasensors.device.management.api.controller;
 
+import com.joaoeduardo.algasensors.device.management.api.client.*;
+import com.joaoeduardo.algasensors.device.management.api.client.impl.*;
 import com.joaoeduardo.algasensors.device.management.api.config.mapper.*;
 import com.joaoeduardo.algasensors.device.management.api.model.dto.in.*;
 import com.joaoeduardo.algasensors.device.management.api.model.dto.out.*;
@@ -21,11 +23,13 @@ import org.springframework.web.server.*;
 public class SensorController {
 
     private final SensorRepository sensorRepository;
+    private final SensorMonitoringClient sensorMonitoringClient;
+
     private final IMapper mapper;
 
 
     @GetMapping
-    public Page<SensorOutput> getOne(@PageableDefault Pageable pageable) {
+    public Page<SensorOutput> getAll(@PageableDefault Pageable pageable) {
         Page<Sensor> sensors = sensorRepository.findAll(pageable);
         return sensors.map(mapper::toSensorOutput);
     }
@@ -68,14 +72,14 @@ public class SensorController {
 
         Sensor updatedSensor = mapper.toSensor(input);
 
-        updatedSensor.setId(sensor.getId()); // Mantém o ID original
+        updatedSensor.setId(sensor.getId());
 
         return mapper.toSensorOutput(
                 sensorRepository.save(updatedSensor));
     }
 
     @PutMapping("{sensorId}/enable")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseStatus(HttpStatus.OK)
     public SensorOutput enableSensor(@PathVariable TSID sensorId) {
 
         Sensor sensor = sensorRepository.findById(new SensorId(sensorId))
@@ -83,18 +87,22 @@ public class SensorController {
 
         sensor.setEnabled(true);
 
+        sensorMonitoringClient.enableMonitoring(sensorId);
+
         return mapper.toSensorOutput(
                 sensorRepository.save(sensor));
     }
 
     @DeleteMapping("{sensorId}/enable")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseStatus(HttpStatus.OK)
     public SensorOutput disableSensor(@PathVariable TSID sensorId) {
 
         Sensor sensor = sensorRepository.findById(new SensorId(sensorId))
                 .orElseThrow(() -> new SensorNotFoundException("Sensor not found with ID: " + sensorId));
 
         sensor.setEnabled(false);
+
+        sensorMonitoringClient.disableMonitoring(sensorId);
 
         return mapper.toSensorOutput(
                 sensorRepository.save(sensor));
@@ -106,6 +114,8 @@ public class SensorController {
 
         Sensor sensor = sensorRepository.findById(new SensorId(sensorId))
                 .orElseThrow(() -> new SensorNotFoundException("Sensor not found with ID: " + sensorId));
+
+        sensorMonitoringClient.disableMonitoring(sensorId);
 
         sensorRepository.delete(sensor);
 

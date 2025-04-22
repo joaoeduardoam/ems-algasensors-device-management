@@ -15,7 +15,16 @@ public class ExceptionEntityHandler {
     @ExceptionHandler(SensorNotFoundException.class)
     public ResponseEntity<StandardError> handleEventNotFoundException(SensorNotFoundException exception, HttpServletRequest request){
         HttpStatus status = HttpStatus.NOT_FOUND;
-        StandardError error = new StandardError(Instant.now(), status.value(), "Event not found!",
+        StandardError error = new StandardError(Instant.now(), status.value(), "Sensor not found!",
+                exception.getMessage(), request.getRequestURI());
+
+        return ResponseEntity.status(status).body(error);
+    }
+
+    @ExceptionHandler(MonitoringServiceException.class)
+    public ResponseEntity<StandardError> handleMonitoringServiceException(MonitoringServiceException exception, HttpServletRequest request){
+        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+        StandardError error = new StandardError(Instant.now(), status.value(), "Sensor not found!",
                 exception.getMessage(), request.getRequestURI());
 
         return ResponseEntity.status(status).body(error);

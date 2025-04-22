@@ -3,15 +3,14 @@ package com.joaoeduardo.algasensors.device.management.domain.model;
 
 import io.hypersistence.tsid.TSID;
 import jakarta.persistence.Embeddable;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.io.Serializable;
 import java.util.Objects;
 
 @Getter
 @Embeddable
+@EqualsAndHashCode
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SensorId implements Serializable {
 
