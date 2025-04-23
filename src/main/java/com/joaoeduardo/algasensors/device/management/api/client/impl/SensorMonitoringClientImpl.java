@@ -1,13 +1,11 @@
 package com.joaoeduardo.algasensors.device.management.api.client.impl;
 
-import com.joaoeduardo.algasensors.device.management.domain.exceptions.*;
+import com.joaoeduardo.algasensors.device.management.api.client.*;
+import com.joaoeduardo.algasensors.device.management.api.model.dto.out.*;
 import org.slf4j.*;
 
 
-import com.joaoeduardo.algasensors.device.management.api.client.SensorMonitoringClient;
 import io.hypersistence.tsid.TSID;
-import org.springframework.http.*;
-import org.springframework.http.client.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
@@ -20,23 +18,10 @@ public class SensorMonitoringClientImpl implements SensorMonitoringClient {
     private static final Logger log = LoggerFactory.getLogger(SensorMonitoringClientImpl.class);
 
 
-    public SensorMonitoringClientImpl(RestClient.Builder builder) {
-        this.restClient = builder.baseUrl("http://localhost:8082")
-                .requestFactory(generateClientHttpRequestFactory())
-                .defaultStatusHandler(HttpStatusCode::isError, (request, response) -> {
-                    throw new SensorMonitoringClientBadGatewayException();
-                })
-                .build();
+    public SensorMonitoringClientImpl(RestClientFactory factory) {
+        this.restClient = factory.temperatureMonitoringRestClient();
     }
 
-    private ClientHttpRequestFactory generateClientHttpRequestFactory() {
-        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-
-        factory.setReadTimeout(Duration.ofSeconds(5));
-        factory.setConnectTimeout(Duration.ofSeconds(3));
-
-        return factory;
-    }
 
 
     @Override
@@ -54,5 +39,13 @@ public class SensorMonitoringClientImpl implements SensorMonitoringClient {
                 .uri("/api/sensors/{sensorId}/monitoring/enable", sensorId)
                 .retrieve()
                 .toBodilessEntity();
+    }
+
+    @Override
+    public SensorMonitoringOutput getDetail(TSID sensorId) {
+        return restClient.get()
+                .uri("/api/sensors/{sensorId}/monitoring", sensorId)
+                .retrieve()
+                .body(SensorMonitoringOutput.class);
     }
 }

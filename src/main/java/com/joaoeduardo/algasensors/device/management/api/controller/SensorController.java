@@ -42,6 +42,19 @@ public class SensorController {
         return mapper.toSensorOutput(sensor);
     }
 
+    @GetMapping("{sensorId}/detail")
+    public SensorDetailOutput getOneWithDetail(@PathVariable TSID sensorId) {
+        Sensor sensor = sensorRepository.findById(new SensorId(sensorId))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        SensorMonitoringOutput sensorMonitoringOutput = sensorMonitoringClient.getDetail(sensorId);
+
+        return SensorDetailOutput.builder()
+                .sensorOutput(mapper.toSensorOutput(sensor))
+                .sensorMonitoringOutput(sensorMonitoringOutput)
+                .build();
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public SensorOutput create(@RequestBody SensorInput input) {
