@@ -11,7 +11,7 @@ import org.springframework.web.client.RestClient;
 
 import java.time.*;
 
-@Component
+//@Component
 public class SensorMonitoringClientImpl implements SensorMonitoringClient {
 
     private final RestClient restClient;
